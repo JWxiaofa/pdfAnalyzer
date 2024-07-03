@@ -8,6 +8,12 @@ import warnings
 
 
 def load_pdf(path: str) -> List[str]:
+    '''
+    Read pdf in the path.
+
+    :param path: The path that containing pdf files
+    :return: A list of string
+    '''
     texts = []
     for filename in os.listdir(path):
         if filename.endswith(".pdf"):
@@ -38,7 +44,9 @@ def main():
     print("Loading texts from pdf...")
     texts = load_pdf(folder_path)
 
-    model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+    # embedding model
+    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 256
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     client = MilvusClient("milvus_demo.db")
     load_data_to_db(texts, model_name, device, client)

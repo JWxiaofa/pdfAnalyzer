@@ -7,17 +7,37 @@ import torch.nn.functional as F
 from pymilvus import MilvusClient
 from sentence_transformers import SentenceTransformer
 from transformers import T5Tokenizer, T5ForConditionalGeneration
+import numpy as np
 
 
+def split_text_to_chunck(text: List[str], tokenizer, max_length: int) -> List[str]:
+    '''
+    Splits text into chunks based on the maximum token length.
 
-def split_text_to_chunck(text: List[str], tokenizer, max_length) -> List[str]:
+    :param text: The text to be split.
+    :param tokenizer: The tokenizer to be used for encoding and decoding.
+    :param max_length: The maximum length of tokens in each chunk.
+
+    :return: List[str], A list of text chunks.
+    '''
+
     tokens = tokenizer.encode(text, add_special_tokens=False)
     chunks = [tokens[i:i + max_length] for i in range(0, len(tokens), max_length)]
     chunked_texts = [tokenizer.decode(chunk) for chunk in chunks]
     return chunked_texts
 
 
-def get_chunks(texts: List[str], tokenizer, max_length) -> List[str]:
+def get_chunks(texts: List[str], tokenizer, max_length: int) -> List[str]:
+    '''
+    Given a list of texts, split each text into chunks based on the maximum token length.
+
+    :param texts: a list of text
+    :param tokenizer: The tokenizer to be used for encoding and decoding.
+    :param max_length: The maximum length of tokens in each chunk.
+
+    :return: A list of text chunks.
+    '''
+
     res = []
     for text in texts:
         chunks = split_text_to_chunck(text, tokenizer, max_length)
@@ -27,12 +47,26 @@ def get_chunks(texts: List[str], tokenizer, max_length) -> List[str]:
 
 
 def mean_pooling(model_output, attention_mask):
+    '''
+    helper function for embedding. Applies mean pooling to the model output using the attention mask.
+    '''
+
     token_embeddings = model_output[0]  # First element of model_output contains all token embeddings
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
 
-def generate_embedding(chunked_texts: List[str], model_name, device):
+def generate_embedding(chunked_texts: List[str], model_name: str, device: torch.device) -> np.ndarray:
+    '''
+    Generates embeddings for the given chunked texts.
+
+    :param chunked_texts: The chunked texts to be embedded.
+    :param model_name: The name of the model to be used.
+    :param device: The device to be used for computation.
+
+    :return: np.ndarray: The generated embeddings.
+    '''
+
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name).to(device)
 
@@ -48,7 +82,19 @@ def generate_embedding(chunked_texts: List[str], model_name, device):
     return sentence_embeddings.cpu().numpy()
 
 
-def load_data_to_db(texts: List[str], model_name, device, client, max_length=256):
+def load_data_to_db(texts: List[str], model_name: str, device: torch.device, client: MilvusClient, max_length=256) -> None:
+    '''
+    1. split texts into chunks
+    2. generate embeddings for each chunk
+    3. Load text and embeddings into the vector database.
+
+    :param texts: A list of texts read from pdf
+    :param model_name: The name of the model to be used for embedding generation.
+    :param device: The device to be used for computation. (cpu/gpu)
+    :param client: MilvusClient, the Milvus client for database operations.
+    :param max_length: The maximum length of tokens in each chunk. Default is 256.
+    '''
+
     print("Loading data into vector database...")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     chunked_texts = get_chunks(texts, tokenizer, max_length)
@@ -69,7 +115,18 @@ def load_data_to_db(texts: List[str], model_name, device, client, max_length=256
     client.insert(collection_name="demo_collection", data=data)
 
 
-def extract_info(query: str, model_name: str, client, limit=2):
+def extract_info(query: str, model_name: str, client: MilvusClient, limit=2) -> str:
+    '''
+    Extracts information relevant to the query from the vector database.
+
+    :param query: user input
+    :param model_name: The name of the model to be used for query encoding.
+    :param client: The Milvus client for database operations.
+    :param limit: The maximum number of results to return. Default is 2.
+
+    :return: The extracted information as a concatenated string.
+    '''
+
     model = SentenceTransformer(model_name)
     embeddings = model.encode(query)
     search_res = client.search(
@@ -86,7 +143,17 @@ def extract_info(query: str, model_name: str, client, limit=2):
     return text_res
 
 
-def get_llm_response(query, retrieved_info, device):
+def get_llm_response(query: str, retrieved_info: str, device: torch.device) -> str:
+    '''
+    Generates a response from the LLM(google/flan-t5-base) based on the query and retrieved information.
+
+    :param query: The user input.
+    :param retrieved_info: The relevant information.
+    :param device: The device to be used for computation (cpu/gpu).
+
+    :return: The response of LLM
+    '''
+
     tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-base", legacy=False)
 
     prompt = f"{query}\n" \
@@ -95,13 +162,16 @@ def get_llm_response(query, retrieved_info, device):
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-base", device_map="auto")
     else:
         model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-base")
+    model.to(device)
 
+    # max input token limit of google-t5: 512
     input_ids = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).input_ids.to(device)
-    attention_mask = tokenizer(prompt, return_tensors='pt', truncation=True, max_length=512).attention_mask
+    attention_mask = tokenizer(prompt, return_tensors='pt', truncation=True, max_length=512).attention_mask.to(device)
     outputs = model.generate(input_ids, attention_mask=attention_mask, max_new_tokens=100,
                              pad_token_id=tokenizer.eos_token_id)
     answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return answer
+
 
 if __name__ == '__main__':
     path = 'data'
@@ -116,7 +186,8 @@ if __name__ == '__main__':
             texts.append(s)
 
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+    # embedding model
+    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 256
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     client = MilvusClient("milvus_demo.db")
