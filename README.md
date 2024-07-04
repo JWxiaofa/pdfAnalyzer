@@ -20,7 +20,11 @@ git clone git@github.com:JWxiaofa/pdfAnalyzer.git
 cd pdfAnalyzer
 ```
 
-### Set up conda environment
+### MAC OS
+
+If you are using mac, follow the following instructions.
+
+#### Set up conda environment
 
 Ensure you have conda installed on your system.
 
@@ -31,13 +35,25 @@ pip install -r requirements.txt
 
 ```
 
-### Start the application
+#### Start the application
 
 Now you can start the app!
 
 ```bash
 python main.py
 ```
+
+### Windows
+
+If you are using Windows, Milvus Lite currently doesn't support Windows. So you can run this app using Docker. Here's the instructions:
+
+Ensure you have docker installed and running on your system. Then run the following commands:
+
+```bash
+docker build -t pdf-analyzer .
+docker run -it pdf-analyzer
+```
+
 
 #### Usage Example
 ```markdown
