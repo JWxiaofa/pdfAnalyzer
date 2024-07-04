@@ -31,3 +31,16 @@ Now you can start the app!
 ```bash
 python main.py
 ```
+
+#### Usage Example
+```markdown
+Hi! This is a PDF analyzer.
+Please enter the path to the folder containing the PDF files: </path/to/pdf/folder>
+Loading texts from pdf...
+Loading data into vector database...
+Finish loading!
+Enter your question (or type 'exit' to end): <your quesion>
+Answer: ...
+Enter your question (or type 'exit' to end): exit
+Conversation ended.
+```

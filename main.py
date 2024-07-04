@@ -25,7 +25,6 @@ def load_pdf(path: str) -> List[str]:
     return texts
 
 
-
 def main():
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
     logging.getLogger("transformers.tokenization_utils_base").setLevel(logging.ERROR)
@@ -58,9 +57,10 @@ def main():
         retrieved_info = extract_info(query, model_name, client)
         # Generate and display answer using GPT-2
         response = get_llm_response(query, retrieved_info, device)
-        print("Answer:\n" + response)
+        print("Answer: " + response)
 
     print("Conversation ended.")
+
 
 if __name__=='__main__':
     main()
