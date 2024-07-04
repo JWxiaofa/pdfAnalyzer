@@ -186,8 +186,8 @@ if __name__ == '__main__':
             texts.append(s)
 
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    # embedding model
-    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 256
+    # embedding model, 384 dimension
+    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 512
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     client = MilvusClient("milvus_demo.db")

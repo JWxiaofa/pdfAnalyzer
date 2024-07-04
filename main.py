@@ -4,8 +4,7 @@ from retrieve_qa_pipeline import load_data_to_db, extract_info, get_llm_response
 import torch
 from pymilvus import MilvusClient
 from typing import List
-import warnings
-
+import logging
 
 def load_pdf(path: str) -> List[str]:
     '''
@@ -29,9 +28,7 @@ def load_pdf(path: str) -> List[str]:
 
 def main():
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    # warnings.filterwarnings("ignore",
-    #                         message="Special tokens have been added in the vocabulary, make sure the associated "
-    #                                 "word embeddings are fine-tuned or trained.")
+    logging.getLogger("transformers.tokenization_utils_base").setLevel(logging.ERROR)
     print("Hi! This is a PDF analyzer.")
     while True:
         folder_path = input("Please enter the path to the folder containing the PDF files: ")
@@ -44,8 +41,8 @@ def main():
     print("Loading texts from pdf...")
     texts = load_pdf(folder_path)
 
-    # embedding model
-    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 256
+    # embedding model, 384 dimension
+    model_name = 'sentence-transformers/all-MiniLM-L6-v2'  # input token limit: 512
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     client = MilvusClient("milvus_demo.db")
@@ -59,7 +56,6 @@ def main():
 
         # Extract relevant information from the database
         retrieved_info = extract_info(query, model_name, client)
-
         # Generate and display answer using GPT-2
         response = get_llm_response(query, retrieved_info, device)
         print("Answer:\n" + response)
