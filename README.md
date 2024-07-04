@@ -63,7 +63,7 @@ Conversation ended.
 ## API Documentation
 ### `retrieve_qa_pipeline.py`
 
-#### `split_text_to_chunk(text, tokenizer, max_length=512)`
+#### `split_text_to_chunk(text, tokenizer, max_length)`
 
 Splits the given text into chunks based on the tokenizer and the maximum length.
 
@@ -75,7 +75,7 @@ Splits the given text into chunks based on the tokenizer and the maximum length.
 - **Returns:**
   - `List[str]`: A list of text chunks.
 
-#### `get_chunks(texts, tokenizer, max_length=512)`
+#### `get_chunks(texts, tokenizer, max_length)`
 
 Given a list of texts, split each text into chunks based on the maximum token length.
 
@@ -98,7 +98,7 @@ Applies mean pooling to the model output using the attention mask.
 - **Returns:**
   - `torch.Tensor`: The pooled embeddings.
 
-#### `generate_embedding(chunked_texts, model_name, device, max_length=512)`
+#### `generate_embedding(chunked_texts, model_name, device)`
 
 Generates embeddings for the given text chunks using the specified model.
 
@@ -121,7 +121,7 @@ Generates embeddings for the given text chunks using the specified model.
   - `model_name` (str): The name of the model to use for embedding generation.
   - `device` (torch.device): The device to use for computation (CPU/GPU).
   - `client` (MilvusClient): The Milvus client for database operations.
-  - `max_length` (int): The maximum length of tokens in each chunk.
+  - `max_length` (int): The maximum length of tokens in each chunk. Default is 256.
 
 #### `extract_info(query, model_name, client, limit=2)`
 
@@ -131,7 +131,7 @@ Extracts information relevant to the query from the vector database.
   - `query` (str): The user input.
   - `model_name` (str): The name of the model to use for query encoding.
   - `client` (MilvusClient): The Milvus client for database operations.
-  - `limit` (int): The maximum number of results to return.
+  - `limit` (int): The maximum number of results to return. Default is 2.
 
 - **Returns:**
   - `str`: The extracted information as a concatenated string.
