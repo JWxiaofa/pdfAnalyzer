@@ -55,7 +55,7 @@ def main():
 
         # Extract relevant information from the database
         retrieved_info = extract_info(query, model_name, client)
-        # Generate and display answer using GPT-2
+        # Generate and display answer using T5
         response = get_llm_response(query, retrieved_info, device)
         print("Answer: " + response)
 
