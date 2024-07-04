@@ -312,16 +312,16 @@ Increasing `num_beams` to 3 results in too much repetition. Therefore, we increa
 | What is conversational implicature? | conversational implicatures are only indirectly associ - ated with the linguistic content of utterances. they are derived from the content 48 of the sentences used and owe their existence, according to grice, to the fact that participants in a conversation are constrained by the common goal of communi - cation to be cooperative. nonconventional implicatures come in two varieties : first the important class of conversational implicatures that involve the|
 
 
-Overall, when `num_beams` is set to 2, the generation quality is relatively good. The final hyperparameter configuration used in this task is:
+Overall, when `num_beams` is set to 2, the generation quality is relatively good. After multiple experiments, the final hyperparameter configuration used in this task is:
 
 
 | Hyperparameter    | Value |
-|-------------------|-----|
-| max_new_tokens    | 200 |
-| min_length        | 50  |
-| num_beams         | 2   |
-| length_penalty    | 1.1 |
-| repetition_penalty | 1   |
+|-------------------|-------|
+| max_new_tokens    | 200   |
+| min_length        | 50    |
+| num_beams         | 2     |
+| length_penalty    | 1.1   |
+| repetition_penalty | 1.5   |
 
 
 ## Future Work
