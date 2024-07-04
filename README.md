@@ -256,8 +256,8 @@ After setting `min_length` to 50, the answer is more detailed. Next, we experime
 | Question                            | Answer                                                                                             |
 |-------------------------------------|----------------------------------------------------------------------------------------------------|
 | What is RAG?                        | experimented with rag models in a wide variety of scenarios with direct benefit to society, for example by endowing it with a medical index and asking it open - domain questions on that topic, or by helping people be more effective at their jobs.       |
-| How to do nlp research better?      | zheng lin1, 2 1institute of information engineering, chinese academy of sciences, beijing, china 2school of cyber security, university of chinese academy of sciences, beijing, china             |
-| What is conversational implicature? | a system for explaining certain aspects of what utterances convey without claiming that they are part of the conven - tional force of the uttered sentence|
+| How to do nlp research better?      | no response. the responsible nlp checklist used at acl 2023 is adopted from naacl 2022, with the addition of a question on ai writing assistance. 305 [UNK] did you discuss the experimental setup, including hyperparameter search and best - found hyperparameter values?             |
+| What is conversational implicature? | conversational implicatures are only indirectly associ - ated with the linguistic content of utterances. they are derived from the content 48 of the sentences used and owe their existence, according to grice, to the fact that participants in a conversation are constrained by the common goal of communi - cation to be cooperative.|
 
 Model has better performance when setting beam width as 2.
 

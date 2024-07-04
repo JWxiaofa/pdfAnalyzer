@@ -165,7 +165,7 @@ def get_llm_response(query: str, retrieved_info: str, device: torch.device) -> s
     # max input token limit of google-t5: 512
     input_ids = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).input_ids.to(device)
     attention_mask = tokenizer(prompt, return_tensors='pt', truncation=True, max_length=512).attention_mask.to(device)
-    outputs = model.generate(input_ids, attention_mask=attention_mask, max_new_tokens=100, num_beams=2,
+    outputs = model.generate(input_ids, attention_mask=attention_mask, max_new_tokens=100, min_length=50, num_beams=2,
                              length_penalty=1.1, pad_token_id=tokenizer.eos_token_id)
     answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return answer
